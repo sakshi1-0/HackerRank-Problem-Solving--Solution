@@ -1,0 +1,84 @@
+import java.io.*;
+import java.math.*;
+import java.security.*;
+import java.text.*;
+import java.util.*;
+import java.util.concurrent.*;
+import java.util.function.*;
+import java.util.regex.*;
+import java.util.stream.*;
+import static java.util.stream.Collectors.joining;
+import static java.util.stream.Collectors.toList;
+
+class Result { 
+
+            private static final int X_INDEX = 1;
+            private static final int Y_INDEX = 2;
+
+            public static List<Integer> dynamicArray(int n, List<List<Integer>> queries) {
+
+                    List<List<Integer>> arr = new ArrayList<>(n);
+                    List<Integer> answers = new LinkedList<>();
+                    int lastAnswer = 0;
+                    int idx;
+
+                    IntStream.range(0, n).forEach(i -> arr.add(new LinkedList<>()));
+
+                    for (List<Integer> query : queries) {
+
+                            int x = query.get(X_INDEX);
+                            int y = query.get(Y_INDEX);
+                            idx = (x ^ lastAnswer) % n;
+
+                            if (query.get(0) == 1) {                
+                                    arr.get(idx).add(y);
+                            } else {
+                                    lastAnswer = arr.get(idx).get(y % arr.get(idx).size());                
+                                    answers.add(lastAnswer);
+                            }            
+                    }
+
+                    return answers;
+            }
+
+}
+
+
+public class Solution {
+    public static void main(String[] args) throws IOException {
+        BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(System.in));
+        BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(System.getenv("OUTPUT_PATH")));
+
+        String[] firstMultipleInput = bufferedReader.readLine().replaceAll("\\s+$", "").split(" ");
+
+        int n = Integer.parseInt(firstMultipleInput[0]);
+
+        int q = Integer.parseInt(firstMultipleInput[1]);
+
+        List<List<Integer>> queries = new ArrayList<>();
+
+        IntStream.range(0, q).forEach(i -> {
+            try {
+                queries.add(
+                    Stream.of(bufferedReader.readLine().replaceAll("\\s+$", "").split(" "))
+                        .map(Integer::parseInt)
+                        .collect(toList())
+                );
+            } catch (IOException ex) {
+                throw new RuntimeException(ex);
+            }
+        });
+
+        List<Integer> result = Result.dynamicArray(n, queries);
+
+        bufferedWriter.write(
+            result.stream()
+                .map(Object::toString)
+                .collect(joining("\n"))
+            + "\n"
+        );
+
+        bufferedReader.close();
+        bufferedWriter.close();
+    }
+}
