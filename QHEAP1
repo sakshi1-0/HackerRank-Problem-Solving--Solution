@@ -1,0 +1,83 @@
+import java.io.*; 
+import java.util.*;
+
+public class Solution {
+
+public static void main(String[] args) {
+    Scanner sc = new Scanner(System.in);
+    int Q = sc.nextInt();
+    List<Integer> heap = new ArrayList<>();
+
+    while(Q-->0){
+
+        switch(sc.nextInt()){
+            case 1:
+            // Insert
+            insert(heap, sc.nextInt());
+            break;
+
+            case 2:
+            // delete
+            delete(heap, sc.nextInt());
+            break;
+
+            case 3:
+            // print
+            System.out.println(heap.size()>0 ? heap.get(0) : "");
+            break;
+        }
+    }
+}
+
+static void insert(List<Integer> h, int x){
+    int cIdx = h.size();
+    h.add(x);
+    int p = (cIdx-1)/2;
+
+    while(p>-1 && h.get(p)>h.get(cIdx)){
+        swap(h, p ,cIdx);
+        cIdx = p;
+        p = (cIdx-1)/2;
+    }
+}
+
+static void swap(List<Integer> h, int p, int c){
+    int t = h.get(p);
+    h.set(p, h.get(c));
+    h.set(c, t);
+}
+
+static void delete(List<Integer> h, int x){
+    if(h.size()<=0)
+        return;
+
+            int xIdx = h.indexOf(x);
+    swap(h, xIdx, h.size()-1);
+    h.remove(h.size()-1);
+
+    int pIdx = xIdx;
+    int cIdx = getMinChildIdx(h, pIdx);
+
+    while(cIdx<h.size() && h.get(pIdx)>h.get(cIdx)){
+        swap(h, pIdx, cIdx);
+        pIdx = cIdx;
+        cIdx = getMinChildIdx(h, pIdx);
+    }
+}
+
+static int getMinChildIdx(List<Integer> h, int p){
+
+    int c1 = (p*2)+1;
+    int c2 = (p*2)+2;
+
+    if(c1<h.size() && c2<h.size()){
+        if(h.get(c1)<h.get(c2))
+            return c1;
+
+        return c2;
+    }else if(c1 < h.size())
+        return c1;
+    else 
+        return c2;
+}
+}
