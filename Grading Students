@@ -1,0 +1,35 @@
+import java.util.Scanner;
+
+ class Solution{
+
+public static int RoundOff(int n){
+    int d=n%5;
+    int rn=n+(5-d);
+    int diff=rn-n;
+    int mark=0;
+    if(n<38){
+        mark=n;
+        return mark;
+    }
+    else{
+        while(diff<3){
+            return rn;
+        }
+        return n;
+    }
+
+}
+
+public static void main(String args[]){
+    Scanner sc=new Scanner(System.in);
+    int q=sc.nextInt();
+    int n=0;
+    while(q>0){
+        n=sc.nextInt();
+        System.out.println(RoundOff(n));
+        q--;
+    }
+    //System.out.println(RoundOff(n));
+sc.close();    
+}
+}
