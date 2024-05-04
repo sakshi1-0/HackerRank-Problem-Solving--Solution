@@ -31,7 +31,7 @@ if (sum / 2 == b)
   {
        System.out.println(Math.abs(sum / 2 - b)); 
 }
-}
+} 
     }
 
 
