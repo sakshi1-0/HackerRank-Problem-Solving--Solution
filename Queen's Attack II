@@ -1,0 +1,120 @@
+import java.io.*;
+import java.math.*;
+import java.security.*;
+import java.text.*;
+import java.util.*;
+import java.util.concurrent.*;
+import java.util.function.*;
+import java.util.regex.*;
+import java.util.stream.*;
+import static java.util.stream.Collectors.joining;
+import static java.util.stream.Collectors.toList;
+
+class Result {
+
+    /*
+     * Complete the 'queensAttack' function below.
+     *
+     * The function is expected to return an INTEGER.
+     * The function accepts following parameters:
+     *  1. INTEGER n
+     *  2. INTEGER k
+     *  3. INTEGER r_q
+     *  4. INTEGER c_q
+     *  5. 2D_INTEGER_ARRAY obstacles
+     */
+
+    public static int queensAttack(int n, int k, int r_q, int c_q, List<List<Integer>> obstacles) {
+    // Write your code here
+  // By default, distance to row beyond upper chessboard bound
+    int distanceToNearestNorthObstacle = n - r_q + 1;
+    // By default, distance to row beyond lower chessboard bound
+    int distanceToNearestSouthObstacle = r_q;
+    // By default, distance to column beyond right chessboard bound
+    int distanceToNearestEastObstacle = n - c_q + 1;
+    // By default, distance to column beyond left chessboard bound
+    int distanceToNearestWestObstacle = c_q;
+    int distanceToNearestNorthEastObstacle = Math.min(distanceToNearestNorthObstacle, distanceToNearestEastObstacle);
+    int distanceToNearestNorthWestObstacle = Math.min(distanceToNearestNorthObstacle, distanceToNearestWestObstacle);
+    int distanceToNearestSouthEastObstacle = Math.min(distanceToNearestSouthObstacle, distanceToNearestEastObstacle);
+    int distanceToNearestSouthWestObstacle = Math.min(distanceToNearestSouthObstacle, distanceToNearestWestObstacle);
+    for(List<Integer> obstacle : obstacles) {
+        int obstacleRow = obstacle.get(0);
+        int obstacleColumn = obstacle.get(1);
+        // Is obstacle in vertical ?
+        if(r_q == obstacleRow) {
+            if(c_q < obstacleColumn) {
+                distanceToNearestEastObstacle = Math.min(distanceToNearestEastObstacle, obstacleColumn - c_q);
+            } else {
+                distanceToNearestWestObstacle = Math.min(distanceToNearestEastObstacle, c_q - obstacleColumn);
+            }
+            continue;
+        }
+        // Is obstacle in horizontal ? 
+        if(c_q == obstacleColumn) {
+            if(r_q < obstacleRow) {
+                distanceToNearestNorthObstacle = Math.min(distanceToNearestNorthObstacle, obstacleRow - r_q);
+            } else {
+                distanceToNearestSouthObstacle = Math.min(distanceToNearestSouthObstacle, r_q - obstacleRow);
+            }
+            continue;
+        }
+        // Is obstacle in any diagonal ? 
+        if(Math.abs(c_q - obstacleColumn) == Math.abs(r_q - obstacleRow)) {
+            if(r_q < obstacleRow && c_q < obstacleColumn) {
+                distanceToNearestNorthEastObstacle = Math.min(distanceToNearestNorthEastObstacle, obstacleColumn - c_q);
+            } else if(r_q < obstacleRow && c_q > obstacleColumn) {
+                distanceToNearestNorthWestObstacle = Math.min(distanceToNearestNorthWestObstacle, obstacleRow - r_q);
+            } else if(r_q > obstacleRow && c_q < obstacleColumn) {
+                distanceToNearestSouthEastObstacle = Math.min(distanceToNearestSouthEastObstacle, r_q - obstacleRow);
+            } else {
+                distanceToNearestSouthWestObstacle = Math.min(distanceToNearestSouthWestObstacle, r_q - obstacleRow);
+            }
+            continue;
+        }
+    }
+    return (distanceToNearestNorthObstacle - 1) + (distanceToNearestSouthObstacle - 1) + (distanceToNearestEastObstacle - 1) + (distanceToNearestWestObstacle - 1) + (distanceToNearestNorthEastObstacle - 1) + (distanceToNearestNorthWestObstacle - 1) + (distanceToNearestSouthEastObstacle - 1) + (distanceToNearestSouthWestObstacle - 1);
+    }
+
+}
+
+public class Solution {
+    public static void main(String[] args) throws IOException {
+        BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(System.in));
+        BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(System.getenv("OUTPUT_PATH")));
+
+        String[] firstMultipleInput = bufferedReader.readLine().replaceAll("\\s+$", "").split(" ");
+
+        int n = Integer.parseInt(firstMultipleInput[0]);
+
+        int k = Integer.parseInt(firstMultipleInput[1]);
+
+        String[] secondMultipleInput = bufferedReader.readLine().replaceAll("\\s+$", "").split(" ");
+
+        int r_q = Integer.parseInt(secondMultipleInput[0]);
+
+        int c_q = Integer.parseInt(secondMultipleInput[1]);
+
+        List<List<Integer>> obstacles = new ArrayList<>();
+
+        IntStream.range(0, k).forEach(i -> {
+            try {
+                obstacles.add(
+                    Stream.of(bufferedReader.readLine().replaceAll("\\s+$", "").split(" "))
+                        .map(Integer::parseInt)
+                        .collect(toList())
+                );
+            } catch (IOException ex) {
+                throw new RuntimeException(ex);
+            }
+        });
+
+        int result = Result.queensAttack(n, k, r_q, c_q, obstacles);
+
+        bufferedWriter.write(String.valueOf(result));
+        bufferedWriter.newLine();
+
+        bufferedReader.close();
+        bufferedWriter.close();
+    }
+}
