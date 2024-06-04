@@ -1,0 +1,91 @@
+import java.io.*;
+import java.math.*;
+import java.security.*;
+import java.text.*;
+import java.util.*;
+import java.util.concurrent.*;
+import java.util.function.*;
+import java.util.regex.*;
+import java.util.stream.*;
+import static java.util.stream.Collectors.joining;
+import static java.util.stream.Collectors.toList;
+
+class Result {
+
+    /*
+     * Complete the 'biggerIsGreater' function below.
+     *
+     * The function is expected to return a STRING.
+     * The function accepts STRING w as parameter.
+     */
+
+    public static String biggerIsGreater(String w) {
+    // Write your code here
+   String answer = "";
+        //find longest non-increasing suffix
+        int pivot = -1;
+        for(int i = w.length() -2 ; i >= 0 ; i--){
+            //find pivot
+            if(w.charAt(i) < w.charAt(i+1)){
+                pivot = i;
+                break;
+            }
+        }
+        if(pivot != -1){
+            String swaped = "";
+            //find rightmost successor of pivot in the suffix
+            for(int i = w.length() -1 ; i > pivot ; i--){
+                if(w.charAt(i) > w.charAt(pivot)){
+                    swaped = swap(w,pivot,i);
+                    break;
+                }
+            }
+   
+            //reverse suffix
+            char[] chars = swaped.toCharArray();
+            for(int i =pivot+1 , j = 1; i < swaped.length() ; i++ , j++){
+                chars[i] = swaped.charAt(swaped.length()-j);
+            }
+          
+            answer = new String(chars);
+        }
+        
+        return pivot == -1 ? "no answer":answer;
+    }
+    
+    private static String swap(String str , int pivotIdx , int successorIdx){
+        char[] array = str.toCharArray();
+        char tmp = array[pivotIdx] ;
+        array[pivotIdx] = array[successorIdx] ;
+        array[successorIdx] = tmp;
+        
+        return new String(array);
+    
+    }
+
+}
+
+public class Solution {
+    public static void main(String[] args) throws IOException {
+        BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(System.in));
+        BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(System.getenv("OUTPUT_PATH")));
+
+        int T = Integer.parseInt(bufferedReader.readLine().trim());
+
+        IntStream.range(0, T).forEach(TItr -> {
+            try {
+                String w = bufferedReader.readLine();
+
+                String result = Result.biggerIsGreater(w);
+
+                bufferedWriter.write(result);
+                bufferedWriter.newLine();
+            } catch (IOException ex) {
+                throw new RuntimeException(ex);
+            }
+        });
+
+        bufferedReader.close();
+        bufferedWriter.close();
+    }
+}
