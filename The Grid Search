@@ -1,0 +1,110 @@
+import java.io.*;
+import java.math.*;
+import java.security.*;
+import java.text.*;
+import java.util.*;
+import java.util.concurrent.*;
+import java.util.function.*;
+import java.util.regex.*;
+import java.util.stream.*;
+import static java.util.stream.Collectors.joining;
+import static java.util.stream.Collectors.toList;
+
+class Result {
+
+    /*
+     * Complete the 'gridSearch' function below.
+     *
+     * The function is expected to return a STRING.
+     * The function accepts following parameters:
+     *  1. STRING_ARRAY G
+     *  2. STRING_ARRAY P
+     */
+
+    public static String gridSearch(List<String> G, List<String> P) {
+    // Write your code here
+    for (int i = 0; i < G.size(); i++) {
+        String row = G.get(i);
+            
+        // Finding the occurence of the first pattern row       
+        int startCol = row.indexOf(P.get(0));
+        int endCol = startCol + P.get(0).length() - 1;
+                
+        // Finding all occurence of pattern in the same row
+        while (startCol != -1) {
+         int   counter = 1;
+                    
+            // Looping over the next pattern rows & next grid rows
+            for (int j = 1, k = i + 1; j < P.size() && k < G.size(); j++, k++) {           
+                if (G.get(k).substring(startCol, endCol + 1).equals(P.get(j))) {                        
+                    if (++counter == P.size()) {
+                        return "YES";        
+                    }
+                } else {
+                    break;
+                }
+            }
+                   
+            // Updating
+            startCol = row.indexOf(P.get(0), startCol + 1);
+            endCol = startCol + P.get(0).length() - 1;
+        }
+    }
+    return "NO";
+    }
+
+}
+
+public class Solution {
+    public static void main(String[] args) throws IOException {
+        BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(System.in));
+        BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(System.getenv("OUTPUT_PATH")));
+
+        int t = Integer.parseInt(bufferedReader.readLine().trim());
+
+        IntStream.range(0, t).forEach(tItr -> {
+            try {
+                String[] firstMultipleInput = bufferedReader.readLine().replaceAll("\\s+$", "").split(" ");
+
+                int R = Integer.parseInt(firstMultipleInput[0]);
+
+                int C = Integer.parseInt(firstMultipleInput[1]);
+
+                List<String> G = IntStream.range(0, R).mapToObj(i -> {
+                    try {
+                        return bufferedReader.readLine();
+                    } catch (IOException ex) {
+                        throw new RuntimeException(ex);
+                    }
+                })
+                    .collect(toList());
+
+                String[] secondMultipleInput = bufferedReader.readLine().replaceAll("\\s+$", "").split(" ");
+
+                int r = Integer.parseInt(secondMultipleInput[0]);
+
+                int c = Integer.parseInt(secondMultipleInput[1]);
+
+                List<String> P = IntStream.range(0, r).mapToObj(i -> {
+                    try {
+                        return bufferedReader.readLine();
+                    } catch (IOException ex) {
+                        throw new RuntimeException(ex);
+                    }
+                })
+                    .collect(toList());
+
+                String result = Result.gridSearch(G, P);
+
+                bufferedWriter.write(result);
+                bufferedWriter.newLine();
+            } catch (IOException ex) {
+                throw new RuntimeException(ex);
+            }
+        });
+
+        bufferedReader.close();
+        bufferedWriter.close();
+    }
+}
+ 
