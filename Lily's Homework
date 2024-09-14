@@ -1,0 +1,119 @@
+import java.io.*;
+import java.math.*;
+import java.security.*;
+import java.text.*;
+import java.util.*;
+import java.util.concurrent.*;
+import java.util.function.*;
+import java.util.regex.*;
+import java.util.stream.*;
+import static java.util.stream.Collectors.joining;
+import static java.util.stream.Collectors.toList;
+
+class Result {
+
+    /*
+     * Complete the 'lilysHomework' function below.
+     *
+     * The function is expected to return an INTEGER.
+     * The function accepts INTEGER_ARRAY arr as parameter.
+     */
+
+    public static int lilysHomework(List<Integer> arr) {
+    // Write your code here
+    
+     List<Pair> arrPos = new ArrayList<>();
+        for(int i = 0; i < arr.size(); i++){
+            arrPos.add(new Pair(arr.get(i), i));
+        }
+        arrPos.sort(new Comparator<Pair>(){
+            public int compare(
+                Pair p1,
+                Pair p2
+            ){
+                if(p1.value < p2.value){
+                    return -1;
+                } else if(p1.value == p2.value) return 0;
+                else return 1;
+            }
+        });
+        
+        int res = 0, revRes = 0;
+        boolean[] vis = new boolean[arrPos.size()];
+        boolean[] revVis = new boolean[arrPos.size()];
+        
+        //Compare origin list with increment sorted list
+        for(int i = 0; i < arrPos.size(); i++){
+            
+            if(vis[i] || arrPos.get(i).index == i) 
+                continue;
+            
+            int circleLength = 0;
+            int j = i;
+            while(!vis[j]){
+                vis[j] = true;
+                circleLength ++;
+                
+                j = arrPos.get(j).index;
+            }
+            
+            if(circleLength > 0) res += circleLength - 1;
+        }
+        
+        //Compare origin list with decrement sorted list
+        Collections.reverse(arrPos);
+        for(int i = 0; i < arrPos.size(); i++){
+            
+            if(revVis[i] || arrPos.get(i).index == i) 
+                continue;
+            
+            int circleLength = 0;
+            int j = i;
+            while(!revVis[j]){
+                revVis[j] = true;
+                circleLength ++;
+                
+                j = arrPos.get(j).index;
+            }
+            
+            if(circleLength > 0) revRes += circleLength - 1;
+        }
+        
+        return Math.min(res, revRes);
+    }
+    }
+
+class Pair{
+    int value;
+    int index;
+    
+    Pair(int v, int i){
+        value = v;
+        index = i;
+    }
+
+
+    }
+
+
+
+public class Solution {
+    public static void main(String[] args) throws IOException {
+        BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(System.in));
+        BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(System.getenv("OUTPUT_PATH")));
+
+        int n = Integer.parseInt(bufferedReader.readLine().trim());
+
+        List<Integer> arr = Stream.of(bufferedReader.readLine().replaceAll("\\s+$", "").split(" "))
+            .map(Integer::parseInt)
+            .collect(toList());
+
+        int result = Result.lilysHomework(arr);
+
+        bufferedWriter.write(String.valueOf(result));
+        bufferedWriter.newLine();
+
+        bufferedReader.close();
+        bufferedWriter.close();
+    }
+}
