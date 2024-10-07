@@ -1,0 +1,171 @@
+import java.io.*;
+import java.math.*;
+import java.security.*;
+import java.text.*;
+import java.util.*;
+import java.util.concurrent.*;
+import java.util.function.*;
+import java.util.regex.*;
+import java.util.stream.*;
+import static java.util.stream.Collectors.joining;
+import static java.util.stream.Collectors.toList;
+
+class Result {
+    private static final int EMPTY_CELL = 1;
+    private static final int TREE_CELL = 0;
+    private static final int START_CELL = 3;
+    private static final int FINAL_CELL = 4;
+
+    private static int startRow = 0;
+    private static int startCol = 0;
+    /*
+     * Complete the 'countLuck' function below.
+     *
+     * The function is expected to return a STRING.
+     * The function accepts following parameters:
+     *  1. STRING_ARRAY matrix
+     *  2. INTEGER k
+     */
+
+    public static String countLuck(List<String> matrix, int k) {
+    // Write your code here
+        int[][] map = parseMatrix(matrix);
+        int guessing = countGuessing(map);
+
+        return guessing == k ? "Impressed" : "Oops!";
+    }
+
+    private static int[][] parseMatrix(List<String> matrix) {
+        int rows = matrix.size();
+        int cols = matrix.get(0).length();
+        int[][] map = new int[rows][cols];
+
+        for (int i = 0; i < rows; i++) {
+            for (int j = 0; j < cols; j++) {
+                char c = matrix.get(i).charAt(j);
+                if (c == '.') {
+                    map[i][j] = EMPTY_CELL;
+                }
+                else if (c == 'X') {
+                    map[i][j] = TREE_CELL;
+                }
+                else if (c == 'M') {
+                    map[i][j] = START_CELL;
+                    startRow = i;
+                    startCol = j;
+                }
+                else {
+                    map[i][j] = FINAL_CELL;
+                }
+            }
+        }
+
+        return map;
+    }
+
+    private static int countGuessing(int[][] map) {
+        int rows = map.length;
+        int cols = map[0].length;
+        boolean[][] visited = new boolean[rows][cols];
+
+
+        visited[startRow][startCol] = true;
+        LinkedList<Cell> queue = new LinkedList<>();
+        queue.add(new Cell(startRow, startCol, 0));
+
+        while (!queue.isEmpty()) {
+            Cell currentCell = queue.removeFirst();
+            int row = currentCell.row;
+            int col = currentCell.col;
+            int currentGuessing = currentCell.guessing;
+
+            if (map[row][col] == FINAL_CELL) return currentGuessing;
+
+            boolean needGuessing = checkGuessing(map, visited, row, col);
+            if (needGuessing) currentGuessing++;
+
+            visited[row][col] = true;
+            
+            if (isValid(map, row + 1, col) && !visited[row + 1][col] && map[row + 1][col] != TREE_CELL) queue.add(new Cell(row + 1, col, currentGuessing));
+            if (isValid(map, row, col - 1) && !visited[row][col - 1] && map[row][col - 1] != TREE_CELL) queue.add(new Cell(row, col - 1, currentGuessing));
+            if (isValid(map, row, col + 1) && !visited[row][col + 1] && map[row][col + 1] != TREE_CELL) queue.add(new Cell(row, col + 1, currentGuessing));
+            if (isValid(map, row - 1, col) && !visited[row - 1][col] && map[row - 1][col] != TREE_CELL) queue.add(new Cell(row - 1, col, currentGuessing));
+
+        }
+
+        return 0;
+    }
+    
+    private static boolean isValid(int[][] map, int row, int col) {
+        int rows = map.length;
+        int cols = map[0].length;
+
+        if (row < 0 || row >= rows) return false;
+        if (col < 0 || col >= cols) return false;
+
+        return true;
+    }
+
+    private static boolean checkGuessing(int[][] map, boolean[][] visited, int row, int col) {
+        int adjEmptyCells = 0;
+
+        if (isValid(map, row + 1, col) && map[row + 1][col] != TREE_CELL && !visited[row + 1][col]) adjEmptyCells++;
+        if (isValid(map, row, col - 1) && map[row][col - 1] != TREE_CELL && !visited[row][col - 1]) adjEmptyCells++;
+        if (isValid(map, row, col + 1) && map[row][col + 1] != TREE_CELL && !visited[row][col + 1]) adjEmptyCells++;
+        if (isValid(map, row - 1, col) && map[row - 1][col] != TREE_CELL && !visited[row - 1][col]) adjEmptyCells++;
+
+        return adjEmptyCells > 1;
+    }
+
+    private static class Cell {
+        int row;
+        int col;
+        int guessing;
+
+        public Cell(int row, int col, int guessing) {
+            this.row = row;
+            this.col = col;
+            this.guessing = guessing;
+        }
+    }
+}
+
+public class Solution {
+    public static void main(String[] args) throws IOException {
+        BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(System.in));
+        BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(System.getenv("OUTPUT_PATH")));
+
+        int t = Integer.parseInt(bufferedReader.readLine().trim());
+
+        IntStream.range(0, t).forEach(tItr -> {
+            try {
+                String[] firstMultipleInput = bufferedReader.readLine().replaceAll("\\s+$", "").split(" ");
+
+                int n = Integer.parseInt(firstMultipleInput[0]);
+
+                int m = Integer.parseInt(firstMultipleInput[1]);
+
+                List<String> matrix = IntStream.range(0, n).mapToObj(i -> {
+                    try {
+                        return bufferedReader.readLine();
+                    } catch (IOException ex) {
+                        throw new RuntimeException(ex);
+                    }
+                })
+                    .collect(toList());
+
+                int k = Integer.parseInt(bufferedReader.readLine().trim());
+
+                String result = Result.countLuck(matrix, k);
+
+                bufferedWriter.write(result);
+                bufferedWriter.newLine();
+            } catch (IOException ex) {
+                throw new RuntimeException(ex);
+            }
+        });
+
+        bufferedReader.close();
+        bufferedWriter.close();
+    }
+}
