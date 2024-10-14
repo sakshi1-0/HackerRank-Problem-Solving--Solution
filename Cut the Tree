@@ -1,0 +1,101 @@
+import java.io.*;
+import java.math.*;
+import java.security.*;
+import java.text.*;
+import java.util.*;
+import java.util.concurrent.*;
+import java.util.function.*;
+import java.util.regex.*;
+import java.util.stream.*;
+import static java.util.stream.Collectors.joining;
+import static java.util.stream.Collectors.toList;
+
+class Result {
+
+static List<List<Integer>> graph;
+static List<Integer> data;
+static int root,res,total;
+public static void create(List<List<Integer>> edges, int n){
+for (int i = 0; i <= n; i++) {
+graph.add(new ArrayList<Integer>()); // Change to LinkedList<Integer>()
+}
+
+for(List<Integer> e : edges) {
+graph.get(e.get(0)).add(e.get(1));
+graph.get(e.get(1)).add(e.get(0));
+}
+
+
+}
+
+private static int dfs(int r, boolean[] vis){
+vis[r]=true;
+if(graph.get(r).size() == 0) return 0;
+
+int sum =0;
+for(int i : graph.get(r)){
+if(!vis[i])
+sum+=dfs(i,vis);
+}
+
+sum+=data.get(r-1);
+res=Math.min(res,Math.abs(total-sum*2));
+return sum;
+
+
+} 
+public static int cutTheTree(List<Integer> data, List<List<Integer>> edges) {
+// Write your code here
+int s = 0;
+graph = new ArrayList<>();
+root =-1;
+res =Integer.MAX_VALUE;
+for(int i : data)
+s+=i;
+total = s;
+create(edges,data.size());
+Result.data = data;
+int v =dfs(1,new boolean[data.size()+2]);
+return res;
+        
+        
+
+    }
+
+}
+
+
+public class Solution {
+    public static void main(String[] args) throws IOException {
+        BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(System.in));
+        BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(System.getenv("OUTPUT_PATH")));
+
+        int n = Integer.parseInt(bufferedReader.readLine().trim());
+
+        List<Integer> data = Stream.of(bufferedReader.readLine().replaceAll("\\s+$", "").split(" "))
+            .map(Integer::parseInt)
+            .collect(toList());
+
+        List<List<Integer>> edges = new ArrayList<>();
+
+        IntStream.range(0, n - 1).forEach(i -> {
+            try {
+                edges.add(
+                    Stream.of(bufferedReader.readLine().replaceAll("\\s+$", "").split(" "))
+                        .map(Integer::parseInt)
+                        .collect(toList())
+                );
+            } catch (IOException ex) {
+                throw new RuntimeException(ex);
+            }
+        });
+
+        int result = Result.cutTheTree(data, edges);
+
+        bufferedWriter.write(String.valueOf(result));
+        bufferedWriter.newLine();
+
+        bufferedReader.close();
+        bufferedWriter.close();
+    }
+}
