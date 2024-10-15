@@ -1,0 +1,98 @@
+import java.io.*;
+import java.math.*;
+import java.security.*;
+import java.text.*;
+import java.util.*;
+import java.util.concurrent.*;
+import java.util.function.*;
+import java.util.regex.*;
+import java.util.stream.*;
+import static java.util.stream.Collectors.joining;
+import static java.util.stream.Collectors.toList;
+
+class Result {
+
+    /*
+     * Complete the 'minimumPasses' function below.
+     *
+     * The function is expected to return a LONG_INTEGER.
+     * The function accepts following parameters:
+     *  1. LONG_INTEGER m
+     *  2. LONG_INTEGER w
+     *  3. LONG_INTEGER p
+     *  4. LONG_INTEGER n
+     */
+
+    public static long minimumPasses(long m, long w, long p, long n) {
+    // Write your code here
+    
+    long candy = 0L;
+        long countDays = 0L;
+        long production = 0L;
+        long canBuy = 0L;
+        if (n / m <= w) return 1;
+        long daysRemaining = n % (m * w) == 0 ? n / (m * w) : (n / (m * w)) + 1;
+        while (countDays <= daysRemaining) {
+            if (Long.MAX_VALUE / m <= w) return countDays + 1;
+            production = m * w;
+            if (candy + production < p) {
+                countDays = countDays + ((p - candy) / production) - 1;
+                candy += (m * w) * ((p - candy) / production) - (m * w) ;
+            }
+            canBuy = (production + candy) / p;
+            if (production + candy < n && canBuy > 0) {
+                long v = Math.abs(m - w);
+                if (canBuy > v) {
+                    m = Math.max(m, w);
+                    m = ((canBuy - v) % 2) == 1
+                            ? m + ((canBuy - v) / 2) + 1
+                            : m + ((canBuy - v) / 2);
+                    w = ((canBuy - v) % 2) == 1
+                            ? m - 1
+                            : m;
+                } else {
+                    if (m > w) {
+                        w += canBuy;
+                    } else {
+                        m += canBuy;
+                    }
+                }
+                production -= canBuy * p;
+            }
+            candy += production;
+            countDays++;
+            daysRemaining = Math.min(daysRemaining,
+                    countDays + (((n - candy) % (m * w)) == 0
+                            ? ((n - candy) / (m * w))
+                            : ((n - candy) / (m * w)) + 1L));
+        }
+        return Math.min(countDays, daysRemaining);
+
+    }
+
+}
+
+public class Solution {
+    public static void main(String[] args) throws IOException {
+        BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(System.in));
+        BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(System.getenv("OUTPUT_PATH")));
+
+        String[] firstMultipleInput = bufferedReader.readLine().replaceAll("\\s+$", "").split(" ");
+
+        long m = Long.parseLong(firstMultipleInput[0]);
+
+        long w = Long.parseLong(firstMultipleInput[1]);
+
+        long p = Long.parseLong(firstMultipleInput[2]);
+
+        long n = Long.parseLong(firstMultipleInput[3]);
+
+        long result = Result.minimumPasses(m, w, p, n);
+
+        bufferedWriter.write(String.valueOf(result));
+        bufferedWriter.newLine();
+
+        bufferedReader.close();
+        bufferedWriter.close();
+    }
+}
